@@ -38,7 +38,7 @@ class EntradaController extends Controller
                 ]
             ],
             "back_urls" => $urls,
-            "auto_return" => "approved"
+            //"auto_return" => "approved"
         ];
 
         // Paso 4: Crear preferencia en MercadoPago
