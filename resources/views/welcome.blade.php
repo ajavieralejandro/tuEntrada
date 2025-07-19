@@ -8,7 +8,7 @@
 </head>
 <body class="bg-gray-100 min-h-screen">
 
-  {{-- Navbar con logo --}}
+  <!-- Navbar con logo -->
   <nav class="bg-white shadow p-4 flex items-center">
     <img
       src="https://upload.wikimedia.org/wikipedia/commons/a/a7/React-icon.svg"
@@ -17,10 +17,10 @@
     />
   </nav>
 
-  {{-- Contenedor principal --}}
+  <!-- Contenedor principal -->
   <div class="flex flex-col md:flex-row h-screen">
 
-    {{-- Imagen izquierda --}}
+    <!-- Imagen izquierda -->
     <div class="md:w-1/2 w-full h-64 md:h-full">
       <img
         src="https://picsum.photos/id/1011/800/1200"
@@ -29,7 +29,7 @@
       />
     </div>
 
-    {{-- Formulario derecha --}}
+    <!-- Formulario derecha -->
     <div class="md:w-1/2 w-full bg-white p-8 overflow-auto flex flex-col">
 
       <h1 class="text-3xl font-bold mb-6">Compra tu entrada</h1>
@@ -46,7 +46,7 @@
           ← Volver a cantidad
         </button>
 
-        {{-- Paso 1: Selección cantidad --}}
+        <!-- Paso 1: Selección cantidad -->
         <div id="paso-cantidad" class="mb-4">
           <label for="cantidad" class="block text-gray-700 font-semibold mb-1">
             ¿Cuántas entradas vas a comprar?
@@ -63,7 +63,7 @@
           />
         </div>
 
-        {{-- Paso 2: Ingreso personas --}}
+        <!-- Paso 2: Ingreso personas -->
         <div id="paso-personas" class="space-y-4 hidden flex-grow flex flex-col justify-start">
           <h3 id="titulo-persona" class="text-lg font-semibold"></h3>
           <input
@@ -97,7 +97,7 @@
           </button>
         </div>
 
-        {{-- Paso 3: Desglose antes de pagar --}}
+        <!-- Paso 3: Desglose antes de pagar -->
         <div id="paso-desglose" class="hidden flex flex-col flex-grow">
 
           <h2 class="text-xl font-semibold mb-4">Resumen de la compra</h2>
@@ -116,7 +116,7 @@
               type="submit"
               class="w-full bg-green-600 text-white py-3 rounded-lg hover:bg-green-700 transition flex items-center justify-center gap-2"
             >
-              {{-- Icono Mercado Pago SVG --}}
+              <!-- Icono Mercado Pago SVG -->
               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
                 <path fill="#00A650" d="M2 3h20v18H2z"/>
                 <path fill="#FFF" d="M7 7h10v10H7z"/>
@@ -127,7 +127,7 @@
           </div>
         </div>
 
-        {{-- Inputs ocultos personas para enviar al backend --}}
+        <!-- Inputs ocultos personas para enviar al backend -->
         <div id="personas-datos"></div>
 
       </form>

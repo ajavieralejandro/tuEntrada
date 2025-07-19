@@ -21,6 +21,9 @@ return [
     'resend' => [
         'key' => env('RESEND_KEY'),
     ],
+    'mercadopago' => [
+    'access_token' => env('MERCADOPAGO_ACCESS_TOKEN'),
+],
 
     'ses' => [
         'key' => env('AWS_ACCESS_KEY_ID'),
