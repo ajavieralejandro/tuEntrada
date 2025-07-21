@@ -21,13 +21,13 @@
   <div class="flex flex-col md:flex-row h-screen">
 
     <!-- Imagen izquierda -->
-    <div class="md:w-1/2 w-full h-64 md:h-full">
-      <img
-        src="https://picsum.photos/id/1011/800/1200"
-        alt="Evento"
-        class="w-full h-full object-cover object-center"
-      />
-    </div>
+  <div class="relative w-full aspect-[3/2] md:aspect-[4/3] lg:aspect-[16/9] overflow-hidden rounded-lg shadow-md">
+  <img
+    src="{{ asset('storage/images/peteco.jpg') }}"
+    alt="Evento"
+    class="absolute inset-0 w-full h-full object-cover object-top"
+  />
+</div>
 
     <!-- Formulario derecha -->
     <div class="md:w-1/2 w-full bg-white p-8 overflow-auto flex flex-col">
@@ -43,7 +43,7 @@
                 class="mb-4 text-blue-600 hover:text-blue-800 font-medium self-start hidden"
                 onclick="volverCantidad()"
         >
-          ← Volver a cantidad
+          ← Volver
         </button>
 
         <!-- Paso 1: Selección cantidad -->
@@ -51,16 +51,16 @@
           <label for="cantidad" class="block text-gray-700 font-semibold mb-1">
             ¿Cuántas entradas vas a comprar?
           </label>
-          <input
-            type="number"
-            id="cantidad"
-            name="cantidad"
-            min="1"
-            max="10"
-            required
-            class="w-full border-gray-300 rounded-lg shadow-sm p-2"
-            onchange="iniciarFormulario()"
-          />
+       <input
+  type="number"
+  id="cantidad"
+  name="cantidad"
+  min="1"
+  max="10"
+  required
+  class="w-full border border-black rounded-lg shadow-sm p-2"
+  onchange="iniciarFormulario()"
+/>
         </div>
 
         <!-- Paso 2: Ingreso personas -->

@@ -7,10 +7,11 @@
     "license": "MIT",
     "require": {
         "php": "^8.2",
-        "endroid/qr-code": "*",
+        "endroid/qr-code": "4.6.1",
         "laravel/framework": "^12.0",
         "laravel/tinker": "^2.10.1",
-        "mercadopago/dx-php": "3.5.1"
+        "mercadopago/dx-php": "3.5.1",
+        "sendinblue/api-v3-sdk": "^8.4"
     },
     "require-dev": {
         "fakerphp/faker": "^1.23",
