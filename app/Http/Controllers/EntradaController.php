@@ -66,38 +66,26 @@ class EntradaController extends Controller
         }
     }
 
-       public function success(Request $request, BrevoMailService $brevo)
+
+public function success(Request $request, BrevoMailService $brevo)
 {
     try {
-        $preferenceId = $request->input('preference_id');
-        if (!$preferenceId) {
-            return redirect('/')->with('error', 'No se recibió preference_id.');
-        }
+        $externalReference = $request->query('external_reference');
 
-        MercadoPagoConfig::setAccessToken(config('services.mercadopago.access_token'));
-        $client = new PreferenceClient();
+        $datos = session('compra');
 
-        $preference = $client->get($preferenceId);
-
-        $externalRefJson = $preference->external_reference ?? null;
-        if (!$externalRefJson) {
-            return redirect('/')->with('error', 'No se encontró external_reference.');
-        }
-
-        $datos = json_decode($externalRefJson, true);
-        if (!$datos || !isset($datos['email'])) {
+        if (!$datos || $datos['id'] !== $externalReference) {
             return redirect('/')->with('error', 'Datos de compra inválidos.');
         }
 
         $cantidad = $datos['cantidad'] ?? 1;
         $nombre = $datos['nombre'] ?? 'Cliente';
-        $email = $datos['email'];
+        $email = $datos['email'] ?? null;
         $dni = $datos['dni'] ?? null;
 
         $entradas = [];
         $numeroEntrada = 301;
 
-        // Generar entradas y códigos QR
         for ($i = 0; $i < $cantidad; $i++) {
             $codigoUnico = Str::uuid();
 
@@ -137,37 +125,38 @@ class EntradaController extends Controller
             ];
         }
 
-        // Enviar email con las entradas
+        // Enviar un solo mail con todas las entradas
+        $email_enviado = false;
         try {
-            // Envía un email por cada entrada
-            foreach ($entradas as $entrada) {
-                $htmlContent = view('emails.entrada-generada', [
-                    'entrada' => $entrada, // Pasamos la entrada individual
-                    'nombre' => $nombre,
-                    'total' => $cantidad * 100
-                ])->render();
+            $htmlContent = view('emails.entrada-generada-multiple', [
+                'entradas' => $entradas,
+                'nombre' => $nombre,
+                'total' => $cantidad * 100 // ajusta precio si es distinto
+            ])->render();
 
-                $brevo->enviarEntrada($htmlContent, [
-                    'nombre' => $nombre,
-                    'email' => $email
-                ]);
-            }
+            $brevo->enviarEntrada($htmlContent, [
+                'nombre' => $nombre,
+                'email' => $email
+            ]);
 
-            Log::info('Email enviado correctamente a: ' . $email);
+            $email_enviado = true;
+            Log::info("Email enviado correctamente a: {$email}");
         } catch (\Exception $e) {
-            Log::error('Error al enviar email: ' . $e->getMessage());
-            // Continuamos mostrando las entradas aunque falle el email
+            Log::error("Error al enviar email: " . $e->getMessage());
         }
+
+        // Limpiar sesión para que no se repita
+        session()->forget('compra');
 
         return view('entradas.qr', [
             'entradas' => $entradas,
             'precio_unitario' => 100,
             'total' => $cantidad * 100,
-            'email_enviado' => !isset($e)
+            'email_enviado' => $email_enviado
         ]);
 
     } catch (\Exception $e) {
-        Log::error('Error en success: ' . $e->getMessage());
+        Log::error("Error en success: " . $e->getMessage());
         return redirect('/')->with('error', 'Ocurrió un error al procesar tu compra.');
     }
 }
