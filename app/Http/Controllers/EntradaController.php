@@ -62,7 +62,6 @@ class EntradaController extends Controller
 }
 
 }
-use Illuminate\Http\Request; // asegurate que esté importado arriba
 
 public function success(Request $request, BrevoMailService $brevo)
 {
