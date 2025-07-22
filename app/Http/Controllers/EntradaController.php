@@ -62,7 +62,6 @@ class EntradaController extends Controller
 }
 
 }
-
 use Illuminate\Http\Request; // asegurate que esté importado arriba
 
 public function success(Request $request, BrevoMailService $brevo)
@@ -145,44 +144,7 @@ public function success(Request $request, BrevoMailService $brevo)
         'total' => count($entradas) * 500
     ]);
 }
-  Storage::disk('public')->put('qrcodes/' . $qrFilename, $qr->getString());
 
-        $qrUrl = asset('storage/qrcodes/' . $qrFilename);
-
-        $entrada = [
-            'persona' => [
-                'nombre' => $datos['nombre'],
-                'email'  => $datos['email'],
-                'dni'    => $datos['dni']
-            ],
-            'qr_url' => $qrUrl,
-            'codigo' => $codigoUnico,
-            'numero' => $numeroEntrada++,
-            'qr_data' => $qrData,
-        ];
-
-        $entradas[] = $entrada;
-    }
-
-    try {
-        $htmlContent = view('emails.entrada-generada-multiple', ['entradas' => $entradas])->render();
-        $brevo->enviarEntrada($htmlContent, [
-            'nombre' => $datos['nombre'],
-            'email'  => $datos['email']
-        ]);
-    } catch (\Exception $e) {
-        \Log::error('Error enviando entrada por mail: ' . $e->getMessage());
-        session()->flash('warning', 'La entrada fue generada, pero no se pudo enviar el email.');
-    }
-
-    session()->forget('compra');
-
-    return view('entradas.qr', [
-        'entradas' => $entradas,
-        'precio_unitario' => 13000,
-        'total' => count($entradas) * 13000
-    ]);
-}
 
 
 
