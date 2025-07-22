@@ -38,7 +38,7 @@ class EntradaController extends Controller
                     [
                         "title" => "Entrada Evento",
                         "quantity" => $cantidad,
-                        "unit_price" => 100,
+                        "unit_price" => 14000,
                         "currency_id" => "ARS"
                     ]
                 ],
@@ -102,7 +102,7 @@ class EntradaController extends Controller
             $codigoUnico = Str::uuid();
 
             $qrData = json_encode([
-                'evento' => 'Mi Evento Especial',
+                'evento' => 'Agitando Pañuelos',
                 'codigo' => $codigoUnico,
                 'nombre' => $nombre,
                 'dni'    => $dni,

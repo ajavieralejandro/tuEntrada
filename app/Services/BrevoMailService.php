@@ -42,7 +42,7 @@ class BrevoMailService
         $response = $this->api->sendTransacEmail($email);
 
         // Mostrar la respuesta directamente
-        dd($response);
+
     } catch (\Exception $e) {
         dd('Error al enviar email con Brevo: ' . $e->getMessage(), $e);
     }
