@@ -63,12 +63,22 @@ class EntradaController extends Controller
 
 }
 
-public function success($id, BrevoMailService $brevo)
+use Illuminate\Http\Request; // asegurate que esté importado arriba
+
+public function success(Request $request, BrevoMailService $brevo)
 {
     $datos = session('compra');
 
-    if (!$datos || $datos['id'] != $id) {
-        return redirect('/')->with('error', 'Datos de compra no encontrados o inválidos.');
+    // Por ejemplo, MercadoPago manda: collection_id, preference_id, payment_id, status, etc.
+    $collectionId = $request->query('collection_id');
+    $preferenceId = $request->query('preference_id');
+    $paymentStatus = $request->query('status'); // approved, pending, rejected...
+
+    // Podés hacer alguna validación extra si querés:
+    // if (!$collectionId || $paymentStatus !== 'approved') { ... }
+
+    if (!$datos) {
+        return redirect('/')->with('error', 'Datos de compra no encontrados.');
     }
 
     $entradas = [];
@@ -97,6 +107,45 @@ public function success($id, BrevoMailService $brevo)
 
         $qrFilename = $codigoUnico . '.png';
         Storage::disk('public')->put('qrcodes/' . $qrFilename, $qr->getString());
+
+        $qrUrl = asset('storage/qrcodes/' . $qrFilename);
+
+        $entrada = [
+            'persona' => [
+                'nombre' => $datos['nombre'],
+                'email'  => $datos['email'],
+                'dni'    => $datos['dni']
+            ],
+            'qr_url' => $qrUrl,
+            'codigo' => $codigoUnico,
+            'numero' => $numeroEntrada++,
+            'qr_data' => $qrData,
+        ];
+
+        $entradas[] = $entrada;
+    }
+
+    // Intentamos enviar mail pero si falla seguimos igual
+    try {
+        $htmlContent = view('emails.entrada-generada-multiple', ['entradas' => $entradas])->render();
+        $brevo->enviarEntrada($htmlContent, [
+            'nombre' => $datos['nombre'],
+            'email'  => $datos['email']
+        ]);
+    } catch (\Exception $e) {
+        // Logueamos el error pero no interrumpimos el flujo
+        logger()->error('Error enviando email de entrada: ' . $e->getMessage());
+    }
+
+    session()->forget('compra');
+
+    return view('entradas.qr', [
+        'entradas' => $entradas,
+        'precio_unitario' => 500,
+        'total' => count($entradas) * 500
+    ]);
+}
+  Storage::disk('public')->put('qrcodes/' . $qrFilename, $qr->getString());
 
         $qrUrl = asset('storage/qrcodes/' . $qrFilename);
 
