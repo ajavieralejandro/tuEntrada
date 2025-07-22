@@ -12,6 +12,7 @@ use Endroid\QrCode\Writer\PngWriter;
 use Endroid\QrCode\Encoding\Encoding;
 use Endroid\QrCode\ErrorCorrectionLevel\ErrorCorrectionLevelHigh;
 use App\Services\BrevoMailService;
+use Illuminate\Support\Facades\Log;
 
 class EntradaController extends Controller
 {
@@ -25,7 +26,6 @@ class EntradaController extends Controller
         $cantidad = (int) $request->input('cantidad');
 
         try {
-            // Preparamos los datos para external_reference
             $externalReference = json_encode([
                 'nombre' => $request->nombre,
                 'email' => $request->email,
@@ -56,17 +56,13 @@ class EntradaController extends Controller
                     "pending" => route("entradas.pending")
                 ],
                 "auto_return" => "approved",
-                "external_reference" => $externalReference // Añadimos los datos aquí
+                "external_reference" => $externalReference
             ]);
 
             return redirect($preference->init_point);
         } catch (\Exception $e) {
-            dd([
-                'message' => $e->getMessage(),
-                'class' => get_class($e),
-                'trace' => $e->getTraceAsString(),
-                'response' => method_exists($e, 'getApiResponse') ? $e->getApiResponse() : 'No API response'
-            ]);
+            Log::error('Error al crear preferencia de MercadoPago: ' . $e->getMessage());
+            return back()->with('error', 'Ocurrió un error al procesar tu solicitud.');
         }
     }
 
@@ -101,6 +97,7 @@ class EntradaController extends Controller
             $entradas = [];
             $numeroEntrada = 301;
 
+            // Generar entradas y códigos QR
             for ($i = 0; $i < $cantidad; $i++) {
                 $codigoUnico = Str::uuid();
 
@@ -140,20 +137,35 @@ class EntradaController extends Controller
                 ];
             }
 
-            // Mostrar directamente la vista con los QR generados
+            // Enviar email con las entradas
+            try {
+                $htmlContent = view('emails.entrada-generada', [
+                    'entradas' => $entradas,
+                    'nombre' => $nombre,
+                    'total' => $cantidad * 100
+                ])->render();
+
+                $brevo->enviarEntrada($htmlContent, [
+                    'nombre' => $nombre,
+                    'email' => $email
+                ]);
+
+                Log::info('Email enviado correctamente a: ' . $email);
+            } catch (\Exception $e) {
+                Log::error('Error al enviar email: ' . $e->getMessage());
+                // Continuamos mostrando las entradas aunque falle el email
+            }
+
             return view('entradas.qr', [
                 'entradas' => $entradas,
-                'precio_unitario' => 100, // Cambiado a 100 para coincidir con el unit_price
-                'total' => count($entradas) * 100
+                'precio_unitario' => 100,
+                'total' => $cantidad * 100,
+                'email_enviado' => !isset($e) // Variable para saber si se envió el email
             ]);
 
         } catch (\Exception $e) {
-            dd([
-                'message' => $e->getMessage(),
-                'class' => get_class($e),
-                'trace' => $e->getTraceAsString(),
-                'response' => method_exists($e, 'getApiResponse') ? $e->getApiResponse() : 'No API response'
-            ]);
+            Log::error('Error en success: ' . $e->getMessage());
+            return redirect('/')->with('error', 'Ocurrió un error al procesar tu compra.');
         }
     }
 
