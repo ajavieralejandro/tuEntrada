@@ -73,7 +73,7 @@
   </div>
 
   <script>
-    const precio = 500;
+    const precio = 14000;
 
     function evitarSubmitEnter(e) {
       if (e.key === 'Enter') {
