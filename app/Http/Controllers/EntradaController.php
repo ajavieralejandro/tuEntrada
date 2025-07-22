@@ -63,11 +63,12 @@ class EntradaController extends Controller
 
 }
 
-public function success(BrevoMailService $brevo)
+public function success($id, BrevoMailService $brevo)
 {
     $datos = session('compra');
-    if (!$datos) {
-        return redirect('/')->with('error', 'Datos de compra no encontrados.');
+
+    if (!$datos || $datos['id'] != $id) {
+        return redirect('/')->with('error', 'Datos de compra no encontrados o inválidos.');
     }
 
     $entradas = [];
@@ -114,19 +115,23 @@ public function success(BrevoMailService $brevo)
         $entradas[] = $entrada;
     }
 
-    // Enviar mail una vez con todas las entradas
-    $htmlContent = view('emails.entrada-generada-multiple', ['entradas' => $entradas])->render();
-    $brevo->enviarEntrada($htmlContent, [
-        'nombre' => $datos['nombre'],
-        'email'  => $datos['email']
-    ]);
+    try {
+        $htmlContent = view('emails.entrada-generada-multiple', ['entradas' => $entradas])->render();
+        $brevo->enviarEntrada($htmlContent, [
+            'nombre' => $datos['nombre'],
+            'email'  => $datos['email']
+        ]);
+    } catch (\Exception $e) {
+        \Log::error('Error enviando entrada por mail: ' . $e->getMessage());
+        session()->flash('warning', 'La entrada fue generada, pero no se pudo enviar el email.');
+    }
 
     session()->forget('compra');
 
     return view('entradas.qr', [
         'entradas' => $entradas,
-        'precio_unitario' => 500,
-        'total' => count($entradas) * 500
+        'precio_unitario' => 13000,
+        'total' => count($entradas) * 13000
     ]);
 }
 
