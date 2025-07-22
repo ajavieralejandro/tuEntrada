@@ -30,7 +30,7 @@ class EntradaController extends Controller
             [
                 "title" => "Entrada Evento",
                 "quantity" => $cantidad,
-                "unit_price" => 500,
+                "unit_price" => 100,
                 "currency_id" => "ARS"
             ]
         ],
