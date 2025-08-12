@@ -7,6 +7,7 @@
 
     Route::post('/entradas/procesar', [EntradaController::class, 'procesar'])->name('entradas.procesar');
 
+Route::get('/entradas/vendidas', [EntradaController::class, 'index'])->name('entradas.index');
 
 Route::get('/entradas/success', [EntradaController::class, 'success'])->name('entradas.success');
 

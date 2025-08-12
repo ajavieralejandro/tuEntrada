@@ -16,6 +16,13 @@ use Illuminate\Support\Facades\Log;
 
 class EntradaController extends Controller
 {
+
+
+public function index()
+{
+    $entradas = Entrada::orderBy('created_at', 'desc')->get();
+    return view('entradas.index', compact('entradas'));
+}
     public function procesar(Request $request)
     {
         $accessToken = config('services.mercadopago.access_token');
