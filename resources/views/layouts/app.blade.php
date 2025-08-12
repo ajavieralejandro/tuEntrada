@@ -1,51 +1,26 @@
-@extends('layouts.app')
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@yield('title', 'Entradas')</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
 
-@section('content')
-<div class="container">
-    <h1>Listado de Entradas</h1>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4">
+        <div class="container">
+            <a class="navbar-brand" href="{{ url('/') }}">Mi Evento</a>
+        </div>
+    </nav>
 
-    <table class="table table-striped">
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>Evento</th>
-                <th>Código QR</th>
-                <th>Nombre</th>
-                <th>DNI</th>
-                <th>Fecha</th>
-                <th>Válido</th>
-                <th>Usada</th>
-                <th>QR</th>
-                <th>Fecha creación</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach($entradas as $entrada)
-            <tr>
-                <td>{{ $entrada->id }}</td>
-                <td>{{ $entrada->evento }}</td>
-                <td>{{ $entrada->codigo_qr }}</td>
-                <td>{{ $entrada->nombre }}</td>
-                <td>{{ $entrada->dni }}</td>
-                <td>{{ $entrada->fecha }}</td>
-                <td>{{ $entrada->valido ? 'Sí' : 'No' }}</td>
-                <td>{{ $entrada->usada ? 'Sí' : 'No' }}</td>
-                <td>
-                    @if($entrada->qr_path)
-                        <img src="{{ asset($entrada->qr_path) }}" alt="QR" width="80" height="80">
-                    @else
-                        No disponible
-                    @endif
-                </td>
-                <td>{{ $entrada->created_at->format('d/m/Y H:i') }}</td>
-            </tr>
-            @endforeach
-        </tbody>
-    </table>
-
-    <!-- Paginación -->
-    <div>
-        {{ $entradas->links() }}
+    <div class="container">
+        @yield('content')
     </div>
-</div>
-@endsection
+
+    <footer class="bg-dark text-white text-center py-3 mt-4">
+        <small>&copy; {{ date('Y') }} Mi Evento Especial</small>
+    </footer>
+
+</body>
+</html>
