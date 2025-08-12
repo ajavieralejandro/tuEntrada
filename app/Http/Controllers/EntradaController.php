@@ -20,7 +20,6 @@ class EntradaController extends Controller
    public function index()
 {
     $entradas = Entrada::orderBy('created_at', 'desc')->paginate(10);
-    return response()->json($entradas); // 10 por página
     return view('entradas.index', compact('entradas'));
 }
     public function procesar(Request $request)
