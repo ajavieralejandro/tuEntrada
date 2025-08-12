@@ -34,13 +34,22 @@
                         <td>{{ $entrada->valido ? 'Sí' : 'No' }}</td>
                         <td>{{ $entrada->usada ? 'Sí' : 'No' }}</td>
                         <td>
-                            <img src="{{ asset('storage/' . $entrada->qr_path) }}" alt="QR" width="80">
+                            @if($entrada->qr_path && file_exists(public_path('storage/' . $entrada->qr_path)))
+                                <img src="{{ asset('storage/' . $entrada->qr_path) }}" alt="QR" width="80">
+                            @else
+                                Sin QR
+                            @endif
                         </td>
                         <td>{{ $entrada->created_at->format('d/m/Y H:i') }}</td>
                     </tr>
                 @endforeach
             </tbody>
         </table>
+
+        {{-- Paginación --}}
+        <div class="d-flex justify-content-center">
+            {{ $entradas->links() }}
+        </div>
     @endif
 </div>
 @endsection
