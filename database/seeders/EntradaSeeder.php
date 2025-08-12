@@ -17,14 +17,19 @@ class EntradaSeeder extends Seeder
 {
     public function run()
     {
+        // Increase limits for large operations
         ini_set('max_execution_time', 0);
         ini_set('memory_limit', '512M');
 
+        // Clean previous data
         $this->cleanPreviousData();
 
         $fechaEvento = Carbon::now()->addDays(30);
         $successCount = 0;
         $errors = [];
+
+        // Create directory if it doesn't exist
+        Storage::makeDirectory('public/entradas');
 
         for ($i = 0; $i < 300; $i++) {
             $codigo = Str::padLeft($i, 3, '0');
@@ -40,11 +45,15 @@ class EntradaSeeder extends Seeder
                     'fecha' => $fechaEvento,
                     'valido' => true,
                     'usada' => false,
-                    'qr_path' => $qrResult['storage_path']
+                    'qr_path' => $qrResult['public_path']
                 ]);
 
                 $successCount++;
-                $this->command->info("✔ Entrada {$codigo} creada.");
+
+                // Show progress every 50 entries
+                if ($i % 50 === 0) {
+                    $this->command->info("Procesadas {$i} entradas...");
+                }
             } catch (\Exception $e) {
                 $errors[] = "✖ Error en código {$codigo}: " . $e->getMessage();
                 $this->command->warn(end($errors));
@@ -63,11 +72,17 @@ class EntradaSeeder extends Seeder
 
     protected function cleanPreviousData()
     {
+        // Truncate the table
         Entrada::truncate();
 
-        // Borrar y recrear carpeta específica
-        Storage::deleteDirectory('public/qrcodes/entradas');
-        Storage::makeDirectory('public/qrcodes/entradas');
+        // Clean QR code directory
+        $directory = 'public/entradas';
+        if (Storage::exists($directory)) {
+            $files = Storage::files($directory);
+            if (count($files) > 0) {
+                Storage::delete($files);
+            }
+        }
     }
 
     protected function generateAndSaveQr($codigo, $fechaEvento)
@@ -90,21 +105,18 @@ class EntradaSeeder extends Seeder
             ->roundBlockSizeMode(new RoundBlockSizeModeMargin())
             ->build();
 
-        // Guardar en subcarpeta
+        // Define paths
         $filename = "entrada_{$codigo}.png";
-        $storagePath = "public/qrcodes/entradas/{$filename}";
-        $publicPath = "storage/qrcodes/entradas/{$filename}";
+        $storagePath = "entradas/{$filename}"; // Changed to simpler path
+        $publicPath = "storage/entradas/{$filename}"; // Public access path
 
-        $success = Storage::put($storagePath, $qrCode->getString());
-
-        if (!$success) {
-            throw new \Exception("No se pudo guardar el QR en {$storagePath}");
-        }
+        // Save the file
+        Storage::put("public/{$storagePath}", $qrCode->getString());
 
         return [
             'filename' => $filename,
-            'storage_path' => $publicPath,
-            'full_path' => storage_path("app/{$storagePath}")
+            'storage_path' => "public/{$storagePath}",
+            'public_path' => $publicPath
         ];
     }
 }

@@ -98,44 +98,45 @@ class EntradaController extends Controller
         $numeroEntrada = 301;
 
         // Generar entradas y códigos QR
-        for ($i = 0; $i < $cantidad; $i++) {
-            $codigoUnico = Str::uuid();
+for ($i = 0; $i < $cantidad; $i++) {
+    $codigoUnico = Str::uuid();
 
-            $qrData = json_encode([
-                'evento' => 'Agitando Pañuelos',
-                'codigo' => $codigoUnico,
-                'nombre' => $nombre,
-                'dni'    => $dni,
-                'fecha'  => now()->toDateString(),
-                'valido' => true
-            ]);
+    $qrData = json_encode([
+        'evento' => 'Agitando Pañuelos',
+        'codigo' => $codigoUnico,
+        'nombre' => $nombre,
+        'dni'    => $dni,
+        'fecha'  => '2025-09-27', // 🔹 Fecha fija para el 27/09/2025
+        'valido' => true
+    ]);
 
-            $qr = Builder::create()
-                ->writer(new PngWriter())
-                ->data($qrData)
-                ->encoding(new Encoding('UTF-8'))
-                ->errorCorrectionLevel(new ErrorCorrectionLevelHigh())
-                ->size(300)
-                ->margin(10)
-                ->build();
+    $qr = Builder::create()
+        ->writer(new PngWriter())
+        ->data($qrData)
+        ->encoding(new Encoding('UTF-8'))
+        ->errorCorrectionLevel(new ErrorCorrectionLevelHigh())
+        ->size(300)
+        ->margin(10)
+        ->build();
 
-            $qrFilename = $codigoUnico . '.png';
-            Storage::disk('public')->put('qrcodes/' . $qrFilename, $qr->getString());
+    $qrFilename = $codigoUnico . '.png';
+    Storage::disk('public')->put('qrcodes/' . $qrFilename, $qr->getString());
 
-            $qrUrl = asset('storage/qrcodes/' . $qrFilename);
+    $qrUrl = asset('storage/qrcodes/' . $qrFilename);
 
-            $entradas[] = [
-                'persona' => [
-                    'nombre' => $nombre,
-                    'email'  => $email,
-                    'dni'    => $dni
-                ],
-                'qr_url' => $qrUrl,
-                'codigo' => $codigoUnico,
-                'numero' => $numeroEntrada++,
-                'qr_data' => $qrData,
-            ];
-        }
+    $entradas[] = [
+        'persona' => [
+            'nombre' => $nombre,
+            'email'  => $email,
+            'dni'    => $dni
+        ],
+        'qr_url' => $qrUrl,
+        'codigo' => $codigoUnico,
+        'numero' => $numeroEntrada++,
+        'qr_data' => $qrData,
+    ];
+}
+
 
         // Enviar email con las entradas
         try {
