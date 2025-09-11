@@ -18,7 +18,6 @@
                     <th>Fecha</th>
                     <th>Válida</th>
                     <th>Usada</th>
-                    <th>QR</th>
                     <th>Vendida el</th>
                 </tr>
             </thead>
@@ -33,9 +32,7 @@
                         <td>{{ \Carbon\Carbon::parse($entrada->fecha)->format('d/m/Y') }}</td>
                         <td>{{ $entrada->valido ? 'Sí' : 'No' }}</td>
                         <td>{{ $entrada->usada ? 'Sí' : 'No' }}</td>
-                        <td>
-                            <img src="{{ asset('storage/' . $entrada->qr_path) }}" alt="QR" width="80">
-                        </td>
+                      
                         <td>{{ $entrada->created_at->format('d/m/Y H:i') }}</td>
                     </tr>
                 @endforeach
