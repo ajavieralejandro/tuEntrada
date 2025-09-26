@@ -6,6 +6,7 @@
     Route::get('/entradas/comprar', [EntradaController::class, 'crear'])->name('entradas.comprar');
 
     Route::post('/entradas/procesar', [EntradaController::class, 'procesar'])->name('entradas.procesar');
+Route::post('/entradas/usar', [EntradaController::class, 'usarDesdeQR']);
 
 Route::get('/entradas/vendidas', [EntradaController::class, 'index'])->name('entradas.index');
 

@@ -177,6 +177,77 @@ for ($i = 0; $i < $cantidad; $i++) {
         return redirect('/')->with('error', 'Ocurrió un error al procesar tu compra.');
     }
 }
+ public function usarDesdeQR(Request $request)
+    {
+        $validated = $request->validate([
+            'codigo_qr' => ['required', 'string'],
+        ]);
+
+        $codigo = $validated['codigo_qr'];
+
+        try {
+            $entrada = DB::transaction(function () use ($codigo) {
+                // Bloqueo pesimista para evitar doble uso simultáneo
+                $entrada = Entrada::where('codigo_qr', $codigo)
+                    ->lockForUpdate()
+                    ->first();
+
+                if (!$entrada) {
+                    abort(404, 'Entrada no encontrada.');
+                }
+
+                if (!$entrada->valido) {
+                    abort(response()->json([
+                        'status'  => 'invalid',
+                        'message' => 'La entrada no es válida.',
+                    ], 422));
+                }
+
+                if ($entrada->usada) {
+                    abort(response()->json([
+                        'status'  => 'already_used',
+                        'message' => 'La entrada ya fue utilizada.',
+                        'entrada' => [
+                            'evento' => $entrada->evento,
+                            'nombre' => $entrada->nombre,
+                            'dni'    => $entrada->dni,
+                            'fecha'  => $entrada->fecha,
+                        ],
+                    ], 409));
+                }
+
+                // Marcar como usada
+                $entrada->usada = true;
+                $entrada->save();
+
+                return $entrada;
+            }, 3); // reintentos en caso de contención
+
+            return response()->json([
+                'status'  => 'ok',
+                'message' => 'Entrada marcada como usada.',
+                'entrada' => [
+                    'evento'  => $entrada->evento,
+                    'nombre'  => $entrada->nombre,
+                    'dni'     => $entrada->dni,
+                    'fecha'   => $entrada->fecha,
+                    'usada'   => (bool) $entrada->usada,
+                    'qr_path' => $entrada->qr_path,
+                    'updated' => optional($entrada->updated_at)->toIso8601String(),
+                ],
+            ], 200);
+
+        } catch (HttpException $e) {
+            // Devolver tal cual los 404/409/422 ya armados
+            throw $e;
+        } catch (\Throwable $e) {
+            Log::error('Error al usar entrada: '.$e->getMessage(), ['codigo_qr' => $codigo]);
+            return response()->json([
+                'status'  => 'error',
+                'message' => 'No se pudo procesar el uso de la entrada.',
+            ], 500);
+        }
+    }
 
     public function failure()
     {
